@@ -51,6 +51,8 @@ private:
 
   void plotSingleHistogram(std::string hName);
 
+  void plotdimuonmass(std::string hName);
+
   TH2F* makeRateWeights(TH2 *hOrig);
   TH1* getRateHisto(std::string sysType = "Vx",
 		    std::string type = "Tot");

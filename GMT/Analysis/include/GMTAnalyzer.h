@@ -12,7 +12,8 @@
 #include "L1ObjColl.h"
 #include "L1PhaseIIObjColl.h"
 #include "L1PhaseIIObj.h"
-
+#include "MuonObj.h"
+#include "MuonObjColl.h"
 
 #include "TVector3.h"
 
@@ -60,6 +61,7 @@ class GMTAnalyzer:public Analyzer{
   const GenObjColl *myGenObjColl;
   const L1ObjColl  *myL1ObjColl;
   const L1PhaseIIObjColl  *myL1PhaseIIObjColl; 
+  const MuonObjColl  *myMuonObjColl;
 };
 
 #endif

@@ -58,6 +58,7 @@ std::string GMTHistograms::getTemplateName(const std::string& name){
 
   if(name.find("DeltaEta")!=std::string::npos) templateName = "h1DDeltaEtaTemplate";
   if(name.find("DeltaPhi")!=std::string::npos) templateName = "h1DDeltaPhiTemplate";
+  if(name.find("DiMuonMass")!=std::string::npos) templateName = "h1DDiMuonMassTemplate";
 
   if(name.find("Pt")!=std::string::npos) templateName = "h2DPtTemplate";
   if(name.find("HighPt")!=std::string::npos) templateName = "h2DHighPtTemplate";
@@ -104,6 +105,8 @@ void GMTHistograms::defineHistograms(){
  add1DHistogram("h1DDeltaEtaTemplate","",11,-0.83,0.83,file_);
 
  add1DHistogram("h1DDeltaPhiTemplate","",5*32,-M_PI,M_PI,file_);
+
+ add1DHistogram("h1DDiMuonMassTemplate", "", 80, 0, 150, file_);
 
  ///Efficiency histos
  add2DHistogram("h2DPtTemplate","",150,0,150,2,-0.5,1.5,file_);
@@ -185,6 +188,9 @@ void GMTHistograms::finalizeHistograms(){
 
   //1D or 2D plot of given variable
   plotSingleHistogram("h2DuGMT_emuPtRecVsPtGen");
+
+  //Plotting the dimuon mass
+  plotdimuonmass("h1DDiMuonMass");
 
   //Turn on curves for many pT thresholds.
   ///Lines for reference - Phase2 uGMT, and other algorithm shown
@@ -700,6 +706,52 @@ void GMTHistograms::plotSingleHistogram(std::string hName){
     h1D->GetYaxis()->SetTitleOffset(1.4);
     h1D->SetStats(kFALSE);
     h1D->Draw("");
+    h1D->Print();
+    c->Print(TString::Format("fig_png/%s.png",hName.c_str()).Data());
+  }
+}
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
+void GMTHistograms::plotdimuonmass(std::string hName){
+
+  TH2F* h2D = get2DHistogram(hName);
+  TH1F* h1D = get1DHistogram(hName);
+  if(!h2D && !h1D) return;
+	
+  TCanvas* c = new TCanvas("AnyHistogram","AnyHistogram",
+			   460,500);
+
+  TLegend l(0.15,0.78,0.35,0.87,NULL,"brNDC");
+  l.SetTextSize(0.05);
+  l.SetFillStyle(4000);
+  l.SetBorderSize(0);
+  l.SetFillColor(10);
+
+  if(h2D) {
+    h2D->SetDirectory(myDirCopy);
+    h2D->SetLineWidth(3);
+    h2D->Scale(1.0/h2D->Integral());
+    h2D->SetXTitle("p_{T}^{GEN}");
+    h2D->SetYTitle("p_{T}^{REC}");
+    h2D->GetYaxis()->SetTitleOffset(1.4);
+    h2D->SetStats(kFALSE);
+    gStyle->SetPalette(kRainBow);
+    h2D->Draw("box colz");
+    c->Print(TString::Format("fig_png/%s.png",hName.c_str()).Data());
+  }
+  if(h1D) {
+    h1D->SetDirectory(myDirCopy);
+    h1D->SetLineWidth(3);
+    h1D->Scale(1.0/h1D->Integral(0,h1D->GetNbinsX()+1));    
+    h1D->GetXaxis()->SetRange(1,h1D->GetNbinsX()+1);
+    h1D->SetXTitle("Z(#mu^{+}#mu^{-}) [GeV/c^{2}]");
+    h1D->SetYTitle("Events");
+    h1D->GetYaxis()->SetTitleOffset(1.4);
+    h1D->SetStats(kTRUE);
+    gStyle->SetOptStat(0) ;
+    gStyle->SetPalette(1) ;
+    h1D->Draw("E1");
     h1D->Print();
     c->Print(TString::Format("fig_png/%s.png",hName.c_str()).Data());
   }

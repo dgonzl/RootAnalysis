@@ -11,6 +11,7 @@
 #include "GenObjColl.h"
 #include "L1ObjColl.h"
 #include "L1PhaseIIObjColl.h"
+#include "MuonObjColl.h"
 
 #include "TBranch.h"
 
@@ -44,6 +45,8 @@ std::ostream& operator<< (std::ostream& stream, const OMTFHit& aHit);
 
      const L1PhaseIIObjColl  *getL1PhaseIIObjColl() const { return myL1PhaseIIObjColl;};
 
+     const MuonObjColl  *getMuonObjColl() const { return myMuonObjColl;};
+
      std::vector<OMTFHit> getHits() const;
      
    private:
@@ -53,6 +56,7 @@ std::ostream& operator<< (std::ostream& stream, const OMTFHit& aHit);
      GenObjColl     *myGenObjColl;
      L1ObjColl      *myL1ObjColl;
      L1PhaseIIObjColl *myL1PhaseIIObjColl;
+     MuonObjColl   *myMuonObjColl;
      std::vector<int> *hits;
      std::vector<int> *hitsQuality;
      

@@ -9,6 +9,7 @@
 #include "TreeAnalyzer.h"
 #include "GMTAnalyzer.h"
 #include "EventProxyOMTF.h"
+#include "TLorentzVector.h"
 
 #include "TF1.h"
 
@@ -205,13 +206,35 @@ void GMTAnalyzer::fillHistosForGenMuon(const GenObj & aGenObj){
 bool GMTAnalyzer::analyze(const EventProxyBase& iEvent){
 
   clear();
-
+   
+  double nominalMuonMass = 0.1056583;
+  /*std::cout<< " nominal mass : "<< nominalMuonMass<< "\n";*/
+  TLorentzVector TheZResonance;
+  TLorentzVector TheMuonLegPositive;
+  TLorentzVector TheMuonLegNegative;
+ 
   const EventProxyOMTF & myProxy = static_cast<const EventProxyOMTF&>(iEvent);
 
   myEventId = myProxy.getEventId();
   myGenObjColl = myProxy.getGenObjColl();
   myL1ObjColl = myProxy.getL1ObjColl();
   myL1PhaseIIObjColl = myProxy.getL1PhaseIIObjColl();
+  myMuonObjColl = myProxy.getMuonObjColl();
+  std::string tmpName = "h1DDiMuonMass";
+
+
+  const std::vector<MuonObj> MuonObjVec = myMuonObjColl->data();
+  if(MuonObjVec.empty()) return false;
+  for(auto aMuonObj: MuonObjVec){
+    /*std::cout<<aMuonObj<<std::endl;*/
+    if(aMuonObj.charge() > 0){ TheMuonLegPositive.SetPtEtaPhiM(aMuonObj.pt(), aMuonObj.eta(), aMuonObj.phi(),nominalMuonMass);}
+    if(aMuonObj.charge() < 0){ TheMuonLegNegative.SetPtEtaPhiM(aMuonObj.pt(), aMuonObj.eta(), aMuonObj.phi(),nominalMuonMass);}
+    TheZResonance = TheMuonLegPositive + TheMuonLegNegative;
+    if(TheZResonance.M() < 70 || TheZResonance.M()>110)continue;
+    /*std::cout<<" print the mass value : "<< TheZResonance.M()<<"\n";*/
+    myHistos_->fill1DHistogram("h1DDiMuonMass", TheZResonance.M(), 1);
+    /*std::cout<<" Filled histogram : "<<"\n";*/
+  }
 
   const std::vector<GenObj> genObjVec = myGenObjColl->data();  
   if(genObjVec.empty()) return false;
@@ -229,6 +252,7 @@ bool GMTAnalyzer::analyze(const EventProxyBase& iEvent){
   // 
     fillRateHisto(aGenObj, "Vx","VsEta");
     fillRateHisto(aGenObj, "uGMT_emu","VsEta");
+    myHistos_->fill1DHistogram("pt", aGenObj.pt(), 1);
   }
   
   return true;
