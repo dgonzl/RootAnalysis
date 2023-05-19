@@ -42,15 +42,29 @@ class GMTAnalyzer:public Analyzer{
 
   void fillHistosForGenMuon(const GenObj & aGenObj);
 
+  void fillHistosForRecoMuon(const MuonObj & aMuonObj);
+
   void fillTurnOnCurve(const GenObj & aGenObj,
+                      const int & ptCut, const std::string & sysType,
+		                  const std::string & selType); 
+
+  void fillTurnOnCurveReco(const MuonObj & aMuonObj,
                       const int & ptCut, const std::string & sysType,
 		                  const std::string & selType);
 
   void fillRateHisto(const GenObj & aGenObj,
                     const std::string & sysType,
-		                const std::string & selType);
+		                const std::string & selType); 
+
+  void fillRateHistoMuon(const MuonObj & aMuonObj,
+                    const std::string & sysType,
+		                const std::string & selType);                  
 
   bool passQuality(const L1PhaseIIObj & aL1Cand,
+		              const std::string & sysType,
+		              const std::string & selType = "");
+
+  bool passQualityReco(const L1Obj & aL1Cand,
 		              const std::string & sysType,
 		              const std::string & selType = "");
  

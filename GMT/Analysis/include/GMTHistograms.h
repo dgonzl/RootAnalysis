@@ -38,7 +38,11 @@ private:
 
   void plotEffPanel(const std::string & sysType, bool doHigh=false);
 
+  void plotEffPanelReco(const std::string & sysType, bool doHigh=false);
+
   void plotEffVsEta(const std::string & sysType);
+
+  void plotEffVsEtaReco(const std::string & sysType);
 
   void plotEffVsVar(const std::string & sysType,
 		    const std::string & varName);
@@ -48,6 +52,8 @@ private:
 
 
   void plotGMTVsOther(int iPt, std::string sysType="BMTF");
+
+  void plotGMTVsOtherReco(int iPt, std::string sysType="BMTF");
 
   void plotSingleHistogram(std::string hName);
 
