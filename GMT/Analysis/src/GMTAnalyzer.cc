@@ -62,14 +62,20 @@ void GMTAnalyzer::finalize(){
 }
 // //////////////////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////////////////
-bool GMTAnalyzer::passQuality(const L1PhaseIIObj & aL1Cand,
+bool GMTAnalyzer::passQuality(const L1Obj & aL1Cand, /*const L1PhaseIIObj & aL1Cand,*/
 			       const std::string & sysType,
 			       const std::string & selType){
   
   bool lowPtVeto = false;
 
    if(sysType.find("uGMT_emu")!=std::string::npos){
-     return aL1Cand.type==L1PhaseIIObj::uGMT_emu && aL1Cand.q>=12 && aL1Cand.bx==0 && !lowPtVeto;
+     return aL1Cand.type==L1Obj::uGMT_emu && aL1Cand.q>=12 && aL1Cand.bx==0 && !lowPtVeto;
+   }
+   if(sysType.find("OMTF")!=std::string::npos){
+     return aL1Cand.type==L1Obj::OMTF && aL1Cand.q>=12 && aL1Cand.bx==0 && !lowPtVeto;
+   }
+   if(sysType.find("uGMT")!=std::string::npos){
+     return aL1Cand.type==L1Obj::uGMT && aL1Cand.q>=12 && aL1Cand.bx==0 && !lowPtVeto;
    }
    else if(sysType.find("Vx")!=std::string::npos){
      return true;
@@ -103,7 +109,8 @@ void GMTAnalyzer::fillTurnOnCurve(const GenObj & aGenObj,
   //int is important for histo name construction
   int ptCut = GMTHistograms::ptBins[iPtCut];
 
-  const std::vector<L1PhaseIIObj> & myL1Coll = myL1PhaseIIObjColl->getL1PhaseIIObjs();
+  /*const std::vector<L1PhaseIIObj> & myL1Coll = myL1PhaseIIObjColl->getL1PhaseIIObjs();*/
+  const std::vector<L1Obj> & myL1Coll = myL1ObjColl->getL1Objs();
   std::string hName = "h2DGmt"+selType;
   if(sysType=="OMTF") {   
     hName = "h2DOMTF"+selType;
@@ -111,17 +118,21 @@ void GMTAnalyzer::fillTurnOnCurve(const GenObj & aGenObj,
   if(sysType=="uGMT_emu") {   
     hName = "h2DuGMT_emu"+selType;
   }
+  if(sysType=="uGMT") {   
+    hName = "h2DuGMT"+selType;
+  }
   if(sysType=="EMTF") {   
     hName = "h2DEMTF"+selType;
   }
 
   ///Find the best matching L1 candidate
   float deltaEta = 0.4;
-  L1PhaseIIObj selectedCand;
+  L1Obj selectedCand; /*L1PhaseIIObj selectedCand;*/
   
   for(auto aCand: myL1Coll){
     bool pass = passQuality(aCand ,sysType, selType);
     if(!pass) continue;    
+    /*std::cout<<aCand<<std::endl;*/
     double delta = std::abs(aGenObj.eta()-aCand.etaValue());    
     if(delta<deltaEta){
       deltaEta = delta;
@@ -233,10 +244,11 @@ void GMTAnalyzer::fillRateHisto(const GenObj & aGenObj,
   //Generator level information is not available for the neutrino sample
   if(name()=="NU_RATEAnalyzer" && aGenObj.pt()>0.0) return;
 
-  const std::vector<L1PhaseIIObj> & myL1Coll = myL1PhaseIIObjColl->getL1PhaseIIObjs();
+  /*const std::vector<L1PhaseIIObj> & myL1Coll = myL1PhaseIIObjColl->getL1PhaseIIObjs();*/
+  const std::vector<L1Obj> & myL1Coll = myL1ObjColl->getL1Objs();
   std::string hName = "h2D"+sysType+"Rate"+selType;
 
-  L1PhaseIIObj selectedCand;
+  L1Obj selectedCand; /*L1PhaseIIObj selectedCand;*/
   for(auto aCand: myL1Coll){
     bool pass = passQuality(aCand ,sysType, selType);    
     if(pass && selectedCand.ptValue()<aCand.ptValue()) selectedCand = aCand;
@@ -274,13 +286,13 @@ void GMTAnalyzer::fillRateHistoMuon(const MuonObj & aMuonObj,
 // //////////////////////////////////////////////////////////////////////////////
 void GMTAnalyzer::fillHistosForGenMuon(const GenObj & aGenObj){   
 
-  bool isGMTAcceptance = fabs(aGenObj.eta())<2.4;
+  bool isGMTAcceptance = fabs(aGenObj.eta())>0.83 && fabs(aGenObj.eta())<1.24;
   if(!isGMTAcceptance) return;
 
   std::string selType = "";
   for(int iCut=0;iCut<31;++iCut){
       fillTurnOnCurve(aGenObj, iCut, "OMTF", selType);
-      fillTurnOnCurve(aGenObj, iCut, "uGMT_emu", selType);
+      fillTurnOnCurve(aGenObj, iCut, "uGMT", selType);
   }
 
   int iCut = 18;
@@ -295,7 +307,7 @@ void GMTAnalyzer::fillHistosForGenMuon(const GenObj & aGenObj){
     
     selType = std::string(TString::Format("Type%d",iType));
     fillTurnOnCurve(aGenObj, iCut, "OMTF", selType);
-    fillTurnOnCurve(aGenObj, iCut, "uGMT_emu", selType);
+    fillTurnOnCurve(aGenObj, iCut, "uGMT", selType);
   }
 }
 // //////////////////////////////////////////////////////////////////////////////
@@ -333,8 +345,6 @@ void GMTAnalyzer::fillHistosForRecoMuon(const MuonObj & aMuonObj){
 bool GMTAnalyzer::analyze(const EventProxyBase& iEvent){
 
   clear();
-   
- 
  
   const EventProxyOMTF & myProxy = static_cast<const EventProxyOMTF&>(iEvent);
 
@@ -343,7 +353,11 @@ bool GMTAnalyzer::analyze(const EventProxyBase& iEvent){
   myL1ObjColl = myProxy.getL1ObjColl();
   myL1PhaseIIObjColl = myProxy.getL1PhaseIIObjColl();
   myMuonObjColl = myProxy.getMuonObjColl();
-  /*double nominalMuonMass = 0.1056583;
+  //////////////////////////////////////////////////////////////////////
+   /////////For  muonColl as Reference with L1////////////////////////////////
+   /////////////////////////////////////////////////////////////////////
+/*
+  double nominalMuonMass = 0.1056583;
   TLorentzVector TheZResonance;
   TLorentzVector TheMuonLegPositive;
   TLorentzVector TheMuonLegNegative;
@@ -364,18 +378,23 @@ bool GMTAnalyzer::analyze(const EventProxyBase& iEvent){
     //if(TheZResonance.M() < 70 || TheZResonance.M()>110)continue;
     std::cout<<" print the mass value : "<< TheZResonance.M()<<"\n";
     myHistos_->fill1DHistogram("h1DDiMuonMass", TheZResonance.M(), 1);
-    
-
   }*/
 
+
+   //////////////////////////////////////////////////////////////////////
+   /////////For Gen muon as Reference with L1////////////////////////////////
+   /////////////////////////////////////////////////////////////////////
   const std::vector<GenObj> genObjVec = myGenObjColl->data();  
   if(genObjVec.empty()) return false;
 
   for(auto aGenObj: genObjVec){
     if(std::abs(aGenObj.pdgId())!=13) continue;
-    if(std::abs(aGenObj.status())!=1) continue;    
+    if(std::abs(aGenObj.status())!=1) continue;   
+
+   /* std::cout<<aGenObj<<std::endl;*/
+
     fillHistosForGenMuon(aGenObj); 
-  
+  /*
     fillRateHisto(aGenObj, "Vx","Tot");
     fillRateHisto(aGenObj, "uGMT_emu","Tot");
   
@@ -383,7 +402,7 @@ bool GMTAnalyzer::analyze(const EventProxyBase& iEvent){
     fillRateHisto(aGenObj, "uGMT_emu","VsPt");
   // 
     fillRateHisto(aGenObj, "Vx","VsEta");
-    fillRateHisto(aGenObj, "uGMT_emu","VsEta");
+    fillRateHisto(aGenObj, "uGMT_emu","VsEta");*/
    
   }
   

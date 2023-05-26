@@ -60,7 +60,7 @@ class GMTAnalyzer:public Analyzer{
                     const std::string & sysType,
 		                const std::string & selType);                  
 
-  bool passQuality(const L1PhaseIIObj & aL1Cand,
+  bool passQuality(const L1Obj & aL1Cand,
 		              const std::string & sysType,
 		              const std::string & selType = "");
 

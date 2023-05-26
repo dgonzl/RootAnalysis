@@ -175,7 +175,11 @@ void GMTHistograms::finalizeHistograms(){
   gErrorIgnoreLevel = kError;
   
   //Panel with many turn-on curves
-  plotEffPanel("uGMT_emu");
+  plotEffPanel("OMTF");
+  return;
+  plotEffPanel("uGMT");
+  
+
   plotEffPanelReco("OMTF");
   plotEffPanelReco("uGMT");
   //Panel with many turn-on curves for high pT range
@@ -215,11 +219,12 @@ void GMTHistograms::finalizeHistograms(){
 
   //Turn on curves for many pT thresholds.
   ///Lines for reference - Phase2 uGMT, and other algorithm shown
+  
   for(int iPtCode=1;iPtCode<=30;++iPtCode){
       plotGMTVsOther(iPtCode,"uGMT_emu");
   }
-
- /* for(int iPtCode=1;iPtCode<=30;++iPtCode){
+/*
+  for(int iPtCode=1;iPtCode<=30;++iPtCode){
       plotGMTVsOtherReco(iPtCode,"OMTF");
   }*/
    
