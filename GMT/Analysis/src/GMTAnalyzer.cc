@@ -363,10 +363,21 @@ bool GMTAnalyzer::analyze(const EventProxyBase& iEvent){
   TLorentzVector TheMuonLegNegative;*/
 
   
-  const std::vector<MuonObj> MuonObjVec = myMuonObjColl->data();
-  if(MuonObjVec.empty()) return false;
-  for(auto aMuonObj: MuonObjVec){
-    fillHistosForRecoMuon(aMuonObj); 
+  const std::vector<MuonObj> MuonObjVec = myMuonObjColl->getMuonObjs(); //data()
+  //if(MuonObjVec.size() < 2 )return false;
+
+  /*MuonObj aTagCand =  MuonObjVec.at(0);
+  bool tagPass = aTagCand.pt()>0 &&
+                 aTagCand.isMatchedIsoHlt && 
+                 std::abs(aTagCand.eta())<0.75;
+  if(!tagPass) return true;
+
+  MuonObj aProbeCand;*/
+  for(auto aMuonCand: MuonObjVec){
+      fillHistosForRecoMuon(aMuonCand);
+      break;
+    }
+    
     
     /*fillRateHistoMuon(aMuonObj, "OMTF","Tot");
     fillRateHistoMuon(aMuonObj, "OMTF","VsPt");    
@@ -377,8 +388,8 @@ bool GMTAnalyzer::analyze(const EventProxyBase& iEvent){
     TheZResonance = TheMuonLegPositive + TheMuonLegNegative;
     //if(TheZResonance.M() < 70 || TheZResonance.M()>110)continue;
     std::cout<<" print the mass value : "<< TheZResonance.M()<<"\n";
-    myHistos_->fill1DHistogram("h1DDiMuonMass", TheZResonance.M(), 1);*/
-  }
+    myHistos_->fill1DHistogram("h1DDiMuonMass", TheZResonance.M(), 1);
+  }*/
 
 
    //////////////////////////////////////////////////////////////////////

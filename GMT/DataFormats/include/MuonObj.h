@@ -9,7 +9,7 @@ public:
       : TrackObj(pt,eta,phi,charge), 
         nRPCHits(0), nDTHits(0), nCSCHits(0), nTrackerHits(0), nMatchedStations(0),
         isUnique(true), isLoose(false), isMedium(false), isTight(false), 
-        isMatchedHlt(false), isMatchedIsoHlt(false),
+        isMatchedHlt(false), isMatchedIsoHlt(false),tightID(false),
         isTkIsolated(false), isPFIsolated(false),
         chi2Norm(0.), l1Eta(9999.), l1Phi(9999.),
         nAllMuons(0), theMuonBits(0) {}
@@ -32,10 +32,12 @@ public:
   unsigned int nRPCHits, nDTHits, nCSCHits, nTrackerHits, nMatchedStations;
   bool         isUnique, isLoose, isMedium, isTight;
   bool         isMatchedHlt, isMatchedIsoHlt;
+  bool         tightID;
   bool         isTkIsolated, isPFIsolated;
   float        chi2Norm;
   float l1Eta, l1Phi;
   unsigned int nAllMuons;
+ //Bool_t matchedisohlt() const {return isMatchedIsoHlt;}
 private:  
   unsigned int theMuonBits; 
 public:

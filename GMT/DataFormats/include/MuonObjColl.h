@@ -13,6 +13,7 @@ public:
   operator const std::vector<MuonObj> & () const { return theColl;}
   operator bool() const {return !theColl.empty(); }
   const std::vector<MuonObj> & data() const { return theColl;}
+  const std::vector<MuonObj> & getMuonObjs() const { return theColl;}
 private:
   std::vector<MuonObj> theColl;
   friend std::ostream & operator<< (std::ostream &out, const MuonObjColl & coll) {
