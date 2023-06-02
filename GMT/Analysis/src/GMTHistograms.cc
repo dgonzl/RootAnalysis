@@ -175,7 +175,11 @@ void GMTHistograms::finalizeHistograms(){
   gErrorIgnoreLevel = kError;
   
   //Panel with many turn-on curves
-  plotEffPanel("OMTF");
+  //plotEffPanel("OMTF");
+  /*plotEffPanelReco("OMTF");*/
+  for(int iPtCode=1;iPtCode<=30;++iPtCode){
+      plotGenVsOtherReco(iPtCode,"OMTF");
+  }
   return;
   plotEffPanel("uGMT");
   
@@ -223,10 +227,7 @@ void GMTHistograms::finalizeHistograms(){
   for(int iPtCode=1;iPtCode<=30;++iPtCode){
       plotGMTVsOther(iPtCode,"uGMT_emu");
   }
-/*
-  for(int iPtCode=1;iPtCode<=30;++iPtCode){
-      plotGMTVsOtherReco(iPtCode,"OMTF");
-  }*/
+
    
   //1D or 2D plot of given variable
   plotSingleHistogram("h2DuGMT_emuPtRecVsPtGen");
@@ -312,7 +313,7 @@ void GMTHistograms::plotEffPanel(const std::string & sysType, bool doHigh){
   TCanvas* c = new TCanvas(TString::Format("EffVsPt_%s",sysType.c_str()),
 			   TString::Format("EffVsPt_%s",sysType.c_str()),
 			   460,500);
-
+  TFile* f = TFile::Open("eventHistGen.root","RECREATE");
   TLegend l(0.6513158,0.1673729,0.8903509,0.470339,NULL,"brNDC");
   l.SetTextSize(0.05);
   l.SetFillStyle(4000);
@@ -333,6 +334,8 @@ void GMTHistograms::plotEffPanel(const std::string & sysType, bool doHigh){
     TH1D *hDenom = h2D->ProjectionX("hDenom",1,1);    
     hDenom->Add(hNum);
     TH1D* hEff =DivideErr(hNum,hDenom,"Pt_Int","B");
+    hEff->Write();
+    
     hEff->SetStats(kFALSE);
     hEff->SetMinimum(0.0001);
     hEff->SetMaximum(1.04);
@@ -348,8 +351,9 @@ void GMTHistograms::plotEffPanel(const std::string & sysType, bool doHigh){
     l.AddEntry(hEff,nameCut.Data());
   }
   l.DrawClone();
-  if(!doHigh) c->Print(TString::Format("fig_png/PanelVsPt_%s.png",sysType.c_str()).Data());
-  else  c->Print(TString::Format("fig_png/PanelVsHighPt_%s.png",sysType.c_str()).Data());
+  if(!doHigh) c->Print(TString::Format("fig_png/PanelVsPt_Gen_%s.png",sysType.c_str()).Data());
+  else  c->Print(TString::Format("fig_png/PanelVsHighPt_Gen_%s.png",sysType.c_str()).Data());
+  f->Close();
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -358,7 +362,7 @@ void GMTHistograms::plotEffPanelReco(const std::string & sysType, bool doHigh){
   TCanvas* c = new TCanvas(TString::Format("EffVsPt_%s",sysType.c_str()),
 			   TString::Format("EffVsPt_%s",sysType.c_str()),
 			   460,500);
-
+  TFile* f = TFile::Open("eventHistReco.root","RECREATE");
   TLegend l(0.6513158,0.1673729,0.8903509,0.470339,NULL,"brNDC");
   l.SetTextSize(0.05);
   l.SetFillStyle(4000);
@@ -379,6 +383,7 @@ void GMTHistograms::plotEffPanelReco(const std::string & sysType, bool doHigh){
     TH1D *hDenom = h2D->ProjectionX("hDenom",1,1);    
     hDenom->Add(hNum);
     TH1D* hEff =DivideErr(hNum,hDenom,"Pt_Int","B");
+     hEff->Write();
     hEff->SetStats(kFALSE);
     hEff->SetMinimum(0.0001);
     hEff->SetMaximum(1.04);
@@ -394,8 +399,9 @@ void GMTHistograms::plotEffPanelReco(const std::string & sysType, bool doHigh){
     l.AddEntry(hEff,nameCut.Data());
   }
   l.DrawClone();
-  if(!doHigh) c->Print(TString::Format("fig_png/PanelVsPt_%s.png",sysType.c_str()).Data());
-  else  c->Print(TString::Format("fig_png/PanelVsHighPt_%s.png",sysType.c_str()).Data());
+  if(!doHigh) c->Print(TString::Format("fig_png/PanelVsPt_RECO_%s.png",sysType.c_str()).Data());
+  else  c->Print(TString::Format("fig_png/PanelVsHighPt_RECO_%s.png",sysType.c_str()).Data());
+  f->Close();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -727,6 +733,75 @@ void GMTHistograms::plotGMTVsOtherReco(int iPtCut,
   c->SetLogy();
   c->Print(TString::Format("fig_eps/GMTVs%s_%d_log.eps",sysType.c_str(),(int)ptCut).Data());
   c->Print(TString::Format("fig_png/GMTVs%s_%d_log.png",sysType.c_str(),(int)ptCut).Data());
+}
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+void GMTHistograms::plotGenVsOtherReco(int iPtCut,
+				     const std::string sysType){
+
+  float ptCut = ptBins[iPtCut];
+
+  TCanvas* c = new TCanvas(TString::Format("GenVsOther_%d",(int)ptCut).Data(),
+			   TString::Format("GenVsOther_%d",(int)ptCut).Data(),
+			   460,500);
+
+  TLegend l(0.2,0.65,0.44,0.86,NULL,"brNDC");
+  l.SetTextSize(0.05);
+  l.SetFillStyle(4000);
+  l.SetBorderSize(0);
+  l.SetFillColor(10);
+  c->SetLogx(1);
+  c->SetGrid(0,1);
+
+  std::string hName = "h2D"+sysType+"Pt_Reco"+std::to_string((int)ptCut);
+  TH2F* h2D = get2DHistogram(hName);
+  if(!h2D) return;
+  TH1D *hNum = h2D->ProjectionX("hNum",2,2);
+  TH1D *hDenom = h2D->ProjectionX("hDenom",1,1);
+  hDenom->Add(hNum);
+  TH1D* hEffOther =DivideErr(hNum,hDenom,"hEffOther","B");
+  hEffOther->SetMarkerStyle(23);
+  hEffOther->SetMarkerColor(2);
+
+  hName = "h2DOMTFPt_Gen"+std::to_string((int)ptCut);
+  h2D = get2DHistogram(hName);
+  hNum = h2D->ProjectionX("hNum",2,2);
+  hDenom = h2D->ProjectionX("hDenom",1,1);    
+  hDenom->Add(hNum);
+
+  TH1D* hEffGMT =DivideErr(hNum,hDenom,"hEffGMTTmp","B");
+  hEffGMT->SetXTitle("Muon p_{T} [GeV/c]");
+  hEffGMT->SetYTitle("Efficiency");
+  hEffGMT->SetMaximum(1.04);
+  hEffGMT->GetXaxis()->SetRange(2,100);
+  hEffGMT->SetMarkerStyle(8);
+  hEffGMT->SetMarkerColor(1);
+  hEffGMT->SetStats(kFALSE);
+  hEffGMT->DrawCopy();
+  hEffOther->DrawCopy("same");
+
+  std::string tmp = "p_{T} #geq ";
+  if(int(ptCut*10)%10==5) tmp += "%1.1f GeV/c";
+  else   tmp += "%1.0f GeV/c";
+  l.AddEntry((TObject*)0, TString::Format(tmp.c_str(),ptCut).Data(), "");
+  l.AddEntry((TObject*)0, "", "");
+  /*l.AddEntry(hEffOther, sysType.c_str());*/
+  l.AddEntry((TObject*)0, "", "");
+  l.AddEntry(hEffGMT, "Gen Muon");
+  l.AddEntry(hEffOther, "Reco Muon");
+  l.DrawClone();
+
+  TLine aLine(0,0,0,0);
+  aLine.SetLineColor(2);
+  aLine.SetLineWidth(3);
+  aLine.DrawLine(ptCut,0,ptCut,1.04);
+
+  c->Print(TString::Format("fig_eps/GenVsReco_%s_%d.eps",sysType.c_str(),(int)ptCut).Data());
+  c->Print(TString::Format("fig_png/GenVsReco_%s_%d.png",sysType.c_str(),(int)ptCut).Data());
+
+  c->SetLogy();
+  c->Print(TString::Format("fig_eps/GenVsReco_%s_%d_log.eps",sysType.c_str(),(int)ptCut).Data());
+  c->Print(TString::Format("fig_png/GenVsReco_%s_%d_log.png",sysType.c_str(),(int)ptCut).Data());
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////

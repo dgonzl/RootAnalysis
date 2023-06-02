@@ -55,6 +55,8 @@ private:
 
   void plotGMTVsOtherReco(int iPt, std::string sysType="BMTF");
 
+  void plotGenVsOtherReco(int iPt, std::string sysType="BMTF");
+
   void plotSingleHistogram(std::string hName);
 
   void plotdimuonmass(std::string hName);
