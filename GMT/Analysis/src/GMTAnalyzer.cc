@@ -364,7 +364,8 @@ bool GMTAnalyzer::analyze(const EventProxyBase& iEvent){
 
   
   const std::vector<MuonObj> MuonObjVec = myMuonObjColl->getMuonObjs(); //data()
-  //if(MuonObjVec.size() < 2 )return false;
+  //if(MuonObjVec.size() < 2 || MuonObjVec.size() > 2)return false;
+  if(MuonObjVec.size() ==0) return false;
 
   /*MuonObj aTagCand =  MuonObjVec.at(0);
   bool tagPass = aTagCand.pt()>0 &&
@@ -375,6 +376,8 @@ bool GMTAnalyzer::analyze(const EventProxyBase& iEvent){
   MuonObj aProbeCand;*/
   for(auto aMuonCand: MuonObjVec){
       fillHistosForRecoMuon(aMuonCand);
+      /*std::cout<<"nuevo"<<std::endl;
+      std::cout<<aMuonCand<<std::endl;*/
       break;
     }
     
@@ -405,7 +408,7 @@ bool GMTAnalyzer::analyze(const EventProxyBase& iEvent){
    //std::cout<<aGenObj<<std::endl;
 
     fillHistosForGenMuon(aGenObj); ////////////ONLY this
- 
+    //break;
     /*fillRateHisto(aGenObj, "Vx","Tot");
     fillRateHisto(aGenObj, "uGMT_emu","Tot");
   

@@ -176,7 +176,7 @@ void GMTHistograms::finalizeHistograms(){
   
   //Panel with many turn-on curves
   //plotEffPanel("OMTF");
-  /*plotEffPanelReco("OMTF");*/
+  plotEffPanelReco("OMTF");
   for(int iPtCode=1;iPtCode<=30;++iPtCode){
       plotGenVsOtherReco(iPtCode,"OMTF");
   }
@@ -362,7 +362,7 @@ void GMTHistograms::plotEffPanelReco(const std::string & sysType, bool doHigh){
   TCanvas* c = new TCanvas(TString::Format("EffVsPt_%s",sysType.c_str()),
 			   TString::Format("EffVsPt_%s",sysType.c_str()),
 			   460,500);
-  TFile* f = TFile::Open("eventHistReco.root","RECREATE");
+  /*TFile* f = TFile::Open("eventHistReco.root","RECREATE");*/
   TLegend l(0.6513158,0.1673729,0.8903509,0.470339,NULL,"brNDC");
   l.SetTextSize(0.05);
   l.SetFillStyle(4000);
@@ -375,7 +375,7 @@ void GMTHistograms::plotEffPanelReco(const std::string & sysType, bool doHigh){
  
   for (int icut=0; icut <=3;++icut){
     float ptCut = GMTHistograms::ptBins[ptCuts[icut]];
-    hName = "h2D"+sysType+"Pt"+std::to_string((int)ptCut);
+    hName = "h2D"+sysType+"Pt_Reco"+std::to_string((int)ptCut);
     if(doHigh) hName = "h2D"+sysType+"HighPt"+std::to_string((int)ptCut);
     TH2F* h2D = this->get2DHistogram(hName.Data());
     if(!h2D) return;
@@ -383,7 +383,7 @@ void GMTHistograms::plotEffPanelReco(const std::string & sysType, bool doHigh){
     TH1D *hDenom = h2D->ProjectionX("hDenom",1,1);    
     hDenom->Add(hNum);
     TH1D* hEff =DivideErr(hNum,hDenom,"Pt_Int","B");
-     hEff->Write();
+    /*hEff->Write();*/
     hEff->SetStats(kFALSE);
     hEff->SetMinimum(0.0001);
     hEff->SetMaximum(1.04);
@@ -401,7 +401,7 @@ void GMTHistograms::plotEffPanelReco(const std::string & sysType, bool doHigh){
   l.DrawClone();
   if(!doHigh) c->Print(TString::Format("fig_png/PanelVsPt_RECO_%s.png",sysType.c_str()).Data());
   else  c->Print(TString::Format("fig_png/PanelVsHighPt_RECO_%s.png",sysType.c_str()).Data());
-  f->Close();
+  /*f->Close();*/
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
