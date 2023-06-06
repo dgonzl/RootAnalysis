@@ -418,6 +418,7 @@ bool GMTAnalyzer::analyze(const EventProxyBase& iEvent){
   // 
     fillRateHisto(aGenObj, "Vx","VsEta");
     fillRateHisto(aGenObj, "uGMT_emu","VsEta");*/
+    break;
   }
   
   return true;
